@@ -20,6 +20,7 @@
 CK_BBOOL pkcs11_mock_initialized = CK_FALSE;
 CK_BBOOL pkcs11_mock_session_opened = CK_FALSE;
 CK_ULONG pkcs11_mock_session_state = CKS_RO_PUBLIC_SESSION;
+PKCS11_MOCK_CK_OPERATION pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_NONE;
 
 
 CK_FUNCTION_LIST pkcs11_mock_functions = 
@@ -289,7 +290,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetMechanismInfo)(CK_SLOT_ID slotID, CK_MECHANISM_TY
 	if (NULL == pInfo)
 		return CKR_ARGUMENTS_BAD;
 
-	switch (type)
+	switch (type) // TODO - Fix key sizes
 	{
 		case CKM_RSA_PKCS_KEY_PAIR_GEN:
 			pInfo->ulMinKeySize = 1024;
@@ -533,14 +534,69 @@ CK_DEFINE_FUNCTION(CK_RV, C_SetOperationState)(CK_SESSION_HANDLE hSession, CK_BY
 CK_DEFINE_FUNCTION(CK_RV, C_Login)(CK_SESSION_HANDLE hSession, CK_USER_TYPE userType, CK_UTF8CHAR_PTR pPin, CK_ULONG ulPinLen)
 {
 	CK_RV rv = CKR_OK;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if ((CKU_SO != userType) && (CKU_USER != userType))
+		return CKR_USER_TYPE_INVALID;
+
+	if (NULL == pPin)
+		return CKR_ARGUMENTS_BAD;
+
+	if ((ulPinLen < PKCS11_MOCK_CK_TOKEN_INFO_MIN_PIN_LEN) || (ulPinLen > PKCS11_MOCK_CK_TOKEN_INFO_MAX_PIN_LEN))
+		return CKR_PIN_LEN_RANGE;
+
+	switch (pkcs11_mock_session_state)
+	{
+		case CKS_RO_PUBLIC_SESSION:
+
+			if (CKU_SO == userType)
+				rv = CKR_SESSION_READ_ONLY_EXISTS;
+			else
+				pkcs11_mock_session_state = CKS_RO_USER_FUNCTIONS;
+
+			break;
+
+		case CKS_RO_USER_FUNCTIONS:
+		case CKS_RW_USER_FUNCTIONS:
+
+			rv = (CKU_SO == userType) ? CKR_USER_ANOTHER_ALREADY_LOGGED_IN : CKR_USER_ALREADY_LOGGED_IN;
+
+			break;
+
+		case CKS_RW_PUBLIC_SESSION:
+
+			pkcs11_mock_session_state = (CKU_SO == userType) ? CKS_RW_SO_FUNCTIONS : CKS_RW_USER_FUNCTIONS;
+
+			break;
+
+		case CKS_RW_SO_FUNCTIONS:
+
+			rv = (CKU_SO == userType) ? CKR_USER_ALREADY_LOGGED_IN : CKR_USER_ANOTHER_ALREADY_LOGGED_IN;
+
+			break;
+	}
+
 	return rv;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_Logout)(CK_SESSION_HANDLE hSession)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if ((pkcs11_mock_session_state == CKS_RO_PUBLIC_SESSION) || (pkcs11_mock_session_state == CKS_RW_PUBLIC_SESSION))
+		return CKR_USER_NOT_LOGGED_IN;
+
+	return CKR_OK;
 }
 
 
@@ -665,8 +721,27 @@ CK_DEFINE_FUNCTION(CK_RV, C_DecryptFinal)(CK_SESSION_HANDLE hSession, CK_BYTE_PT
 
 CK_DEFINE_FUNCTION(CK_RV, C_DigestInit)(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pMechanism)
+		return CKR_ARGUMENTS_BAD;
+
+	if (CKM_SHA_1 != pMechanism->mechanism)
+		return CKR_MECHANISM_INVALID;
+
+	if ((NULL != pMechanism->pParameter) || (0 != pMechanism->ulParameterLen))
+		return CKR_MECHANISM_PARAM_INVALID;
+
+	if (PKCS11_MOCK_CK_OPERATION_NONE != pkcs11_mock_active_operation)
+		return CKR_OPERATION_ACTIVE;
+
+	pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_DIGEST;
+
+	return CKR_OK;
 }
 
 
@@ -847,34 +922,79 @@ CK_DEFINE_FUNCTION(CK_RV, C_DeriveKey)(CK_SESSION_HANDLE hSession, CK_MECHANISM_
 
 CK_DEFINE_FUNCTION(CK_RV, C_SeedRandom)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pSeed, CK_ULONG ulSeedLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pSeed)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulSeedLen)
+		return CKR_ARGUMENTS_BAD;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_GenerateRandom)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR RandomData, CK_ULONG ulRandomLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == RandomData)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulRandomLen)
+		return CKR_ARGUMENTS_BAD;
+
+	memset(RandomData, 1, ulRandomLen);
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_GetFunctionStatus)(CK_SESSION_HANDLE hSession)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+	
+	return CKR_FUNCTION_NOT_PARALLEL;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_CancelFunction)(CK_SESSION_HANDLE hSession)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+	
+	return CKR_FUNCTION_NOT_PARALLEL;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_WaitForSlotEvent)(CK_FLAGS flags, CK_SLOT_ID_PTR pSlot, CK_VOID_PTR pReserved)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((0 != flags)  && (CKF_DONT_BLOCK != flags))
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == pSlot)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL != pReserved)
+		return CKR_ARGUMENTS_BAD;
+
+	return CKR_NO_EVENT;
 }
