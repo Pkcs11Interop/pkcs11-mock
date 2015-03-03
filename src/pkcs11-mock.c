@@ -602,29 +602,110 @@ CK_DEFINE_FUNCTION(CK_RV, C_Logout)(CK_SESSION_HANDLE hSession)
 
 CK_DEFINE_FUNCTION(CK_RV, C_CreateObject)(CK_SESSION_HANDLE hSession, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phObject)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	int i = 0;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pTemplate)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulCount)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == phObject)
+		return CKR_ARGUMENTS_BAD;
+
+	for (i = 0; i < ulCount; i++)
+	{
+		if (NULL == pTemplate[i].pValue)
+			return CKR_ATTRIBUTE_VALUE_INVALID;
+
+		if (0 >= pTemplate[i].ulValueLen)
+			return CKR_ATTRIBUTE_VALUE_INVALID;
+	}
+
+	*phObject = PKCS11_MOCK_CK_OBJECT_HANDLE_DATA;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_CopyObject)(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phNewObject)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	int i = 0;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (PKCS11_MOCK_CK_OBJECT_HANDLE_DATA != hObject)
+		return CKR_OBJECT_HANDLE_INVALID;
+
+	if (NULL == phNewObject)
+		return CKR_ARGUMENTS_BAD;
+
+	if ((NULL != pTemplate) && (0 >= ulCount))
+	{
+		for (i = 0; i < ulCount; i++)
+		{
+			if (NULL == pTemplate[i].pValue)
+				return CKR_ATTRIBUTE_VALUE_INVALID;
+
+			if (0 >= pTemplate[i].ulValueLen)
+				return CKR_ATTRIBUTE_VALUE_INVALID;
+		}
+	}
+
+	*phNewObject = PKCS11_MOCK_CK_OBJECT_HANDLE_DATA;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_DestroyObject)(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if ((PKCS11_MOCK_CK_OBJECT_HANDLE_DATA != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_SECRET_KEY != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_PUBLIC_KEY != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_PRIVATE_KEY != hObject))
+		return CKR_OBJECT_HANDLE_INVALID;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_GetObjectSize)(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject, CK_ULONG_PTR pulSize)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if ((PKCS11_MOCK_CK_OBJECT_HANDLE_DATA != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_SECRET_KEY != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_PUBLIC_KEY != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_PRIVATE_KEY != hObject))
+		return CKR_OBJECT_HANDLE_INVALID;
+
+	if (NULL == pulSize)
+		return CKR_ARGUMENTS_BAD;
+
+	*pulSize = PKCS11_MOCK_CK_OBJECT_SIZE;
+
+	return CKR_OK;
 }
 
 
@@ -747,29 +828,100 @@ CK_DEFINE_FUNCTION(CK_RV, C_DigestInit)(CK_SESSION_HANDLE hSession, CK_MECHANISM
 
 CK_DEFINE_FUNCTION(CK_RV, C_Digest)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pDigest, CK_ULONG_PTR pulDigestLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	CK_BYTE hash[20] = { 0x7B, 0x50, 0x2C, 0x3A, 0x1F, 0x48, 0xC8, 0x60, 0x9A, 0xE2, 0x12, 0xCD, 0xFB, 0x63, 0x9D, 0xEE, 0x39, 0x67, 0x3F, 0x5E };
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pData)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulDataLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == pulDigestLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (PKCS11_MOCK_CK_OPERATION_DIGEST != pkcs11_mock_active_operation)
+		return CKR_OPERATION_NOT_INITIALIZED;
+
+	if (NULL != pDigest)
+	{
+		if (sizeof(hash) > *pulDigestLen)
+			return CKR_BUFFER_TOO_SMALL;
+		else
+			memcpy(pDigest, hash, sizeof(hash));
+	}
+
+	*pulDigestLen = sizeof(hash);
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_DigestUpdate)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart, CK_ULONG ulPartLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pPart)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulPartLen)
+		return CKR_ARGUMENTS_BAD;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_DigestKey)(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hKey)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (PKCS11_MOCK_CK_OBJECT_HANDLE_SECRET_KEY != hKey)
+		return CKR_OBJECT_HANDLE_INVALID;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_DigestFinal)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pDigest, CK_ULONG_PTR pulDigestLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	CK_BYTE hash[20] = { 0x7B, 0x50, 0x2C, 0x3A, 0x1F, 0x48, 0xC8, 0x60, 0x9A, 0xE2, 0x12, 0xCD, 0xFB, 0x63, 0x9D, 0xEE, 0x39, 0x67, 0x3F, 0x5E };
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pulDigestLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (PKCS11_MOCK_CK_OPERATION_DIGEST != pkcs11_mock_active_operation)
+		return CKR_OPERATION_NOT_INITIALIZED;
+
+	if (NULL != pDigest)
+	{
+		if (sizeof(hash) > *pulDigestLen)
+			return CKR_BUFFER_TOO_SMALL;
+		else
+			memcpy(pDigest, hash, sizeof(hash));
+	}
+
+	*pulDigestLen = sizeof(hash);
+
+	return CKR_OK;
 }
 
 
@@ -887,36 +1039,242 @@ CK_DEFINE_FUNCTION(CK_RV, C_DecryptVerifyUpdate)(CK_SESSION_HANDLE hSession, CK_
 
 CK_DEFINE_FUNCTION(CK_RV, C_GenerateKey)(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phKey)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	int i = 0;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pMechanism)
+		return CKR_ARGUMENTS_BAD;
+
+	if (CKM_DES3_KEY_GEN != pMechanism->mechanism)
+		return CKR_MECHANISM_INVALID;
+
+	if ((NULL != pMechanism->pParameter) || (0 != pMechanism->ulParameterLen))
+		return CKR_MECHANISM_PARAM_INVALID;
+
+	if (NULL == pTemplate)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulCount)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == phKey)
+		return CKR_ARGUMENTS_BAD;
+
+	for (i = 0; i < ulCount; i++)
+	{
+		if (NULL == pTemplate[i].pValue)
+			return CKR_ATTRIBUTE_VALUE_INVALID;
+
+		if (0 >= pTemplate[i].ulValueLen)
+			return CKR_ATTRIBUTE_VALUE_INVALID;
+	}
+
+	*phKey = PKCS11_MOCK_CK_OBJECT_HANDLE_SECRET_KEY;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_GenerateKeyPair)(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism, CK_ATTRIBUTE_PTR pPublicKeyTemplate, CK_ULONG ulPublicKeyAttributeCount, CK_ATTRIBUTE_PTR pPrivateKeyTemplate, CK_ULONG ulPrivateKeyAttributeCount, CK_OBJECT_HANDLE_PTR phPublicKey, CK_OBJECT_HANDLE_PTR phPrivateKey)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	int i = 0;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pMechanism)
+		return CKR_ARGUMENTS_BAD;
+
+	if (CKM_RSA_PKCS_KEY_PAIR_GEN != pMechanism->mechanism)
+		return CKR_MECHANISM_INVALID;
+
+	if ((NULL != pMechanism->pParameter) || (0 != pMechanism->ulParameterLen))
+		return CKR_MECHANISM_PARAM_INVALID;
+
+	if (NULL == pPublicKeyTemplate)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulPublicKeyAttributeCount)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == pPrivateKeyTemplate)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulPrivateKeyAttributeCount)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == phPublicKey)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == phPrivateKey)
+		return CKR_ARGUMENTS_BAD;
+
+	for (i = 0; i < ulPublicKeyAttributeCount; i++)
+	{
+		if (NULL == pPublicKeyTemplate[i].pValue)
+			return CKR_ATTRIBUTE_VALUE_INVALID;
+
+		if (0 >= pPublicKeyTemplate[i].ulValueLen)
+			return CKR_ATTRIBUTE_VALUE_INVALID;
+	}
+
+	for (i = 0; i < ulPrivateKeyAttributeCount; i++)
+	{
+		if (NULL == pPrivateKeyTemplate[i].pValue)
+			return CKR_ATTRIBUTE_VALUE_INVALID;
+
+		if (0 >= pPrivateKeyTemplate[i].ulValueLen)
+			return CKR_ATTRIBUTE_VALUE_INVALID;
+	}
+
+	*phPublicKey = PKCS11_MOCK_CK_OBJECT_HANDLE_PUBLIC_KEY;
+	*phPrivateKey = PKCS11_MOCK_CK_OBJECT_HANDLE_PRIVATE_KEY;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_WrapKey)(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hWrappingKey, CK_OBJECT_HANDLE hKey, CK_BYTE_PTR pWrappedKey, CK_ULONG_PTR pulWrappedKeyLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	CK_BYTE wrappedKey[10] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pMechanism)
+		return CKR_ARGUMENTS_BAD;
+
+	if (CKM_RSA_PKCS != pMechanism->mechanism)
+		return CKR_MECHANISM_INVALID;
+
+	if ((NULL != pMechanism->pParameter) || (0 != pMechanism->ulParameterLen))
+		return CKR_MECHANISM_PARAM_INVALID;
+
+	if (PKCS11_MOCK_CK_OBJECT_HANDLE_PUBLIC_KEY != hWrappingKey)
+		return CKR_KEY_HANDLE_INVALID;
+
+	if (PKCS11_MOCK_CK_OBJECT_HANDLE_SECRET_KEY != hKey)
+		return CKR_KEY_HANDLE_INVALID;
+
+	if (NULL != pWrappedKey)
+	{
+		if (sizeof(wrappedKey) > *pulWrappedKeyLen)
+			return CKR_BUFFER_TOO_SMALL;
+		else
+			memcpy(pWrappedKey, wrappedKey, sizeof(wrappedKey));
+	}
+
+	*pulWrappedKeyLen = sizeof(wrappedKey);
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_UnwrapKey)(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hUnwrappingKey, CK_BYTE_PTR pWrappedKey, CK_ULONG ulWrappedKeyLen, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulAttributeCount, CK_OBJECT_HANDLE_PTR phKey)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	CK_BYTE wrappedKey[10] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
+
+	int i = 0;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pMechanism)
+		return CKR_ARGUMENTS_BAD;
+
+	if (CKM_RSA_PKCS != pMechanism->mechanism)
+		return CKR_MECHANISM_INVALID;
+
+	if ((NULL != pMechanism->pParameter) || (0 != pMechanism->ulParameterLen))
+		return CKR_MECHANISM_PARAM_INVALID;
+
+	if (PKCS11_MOCK_CK_OBJECT_HANDLE_PRIVATE_KEY != hUnwrappingKey)
+		return CKR_KEY_HANDLE_INVALID;
+
+	if (NULL == pWrappedKey)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulWrappedKeyLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == pTemplate)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulAttributeCount)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == phKey)
+		return CKR_ARGUMENTS_BAD;
+
+	for (i = 0; i < ulAttributeCount; i++)
+	{
+		if (NULL == pTemplate[i].pValue)
+			return CKR_ATTRIBUTE_VALUE_INVALID;
+
+		if (0 >= pTemplate[i].ulValueLen)
+			return CKR_ATTRIBUTE_VALUE_INVALID;
+	}
+
+	*phKey = PKCS11_MOCK_CK_OBJECT_HANDLE_SECRET_KEY;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_DeriveKey)(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hBaseKey, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulAttributeCount, CK_OBJECT_HANDLE_PTR phKey)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	int i = 0;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pMechanism)
+		return CKR_ARGUMENTS_BAD;
+
+	if (CKM_XOR_BASE_AND_DATA != pMechanism->mechanism)
+		return CKR_MECHANISM_INVALID;
+
+	if ((NULL == pMechanism->pParameter) || (sizeof(CK_KEY_DERIVATION_STRING_DATA) != pMechanism->ulParameterLen))
+		return CKR_MECHANISM_PARAM_INVALID;
+
+	if (PKCS11_MOCK_CK_OBJECT_HANDLE_SECRET_KEY != hBaseKey)
+		return CKR_OBJECT_HANDLE_INVALID;
+
+	if (NULL == phKey)
+		return CKR_ARGUMENTS_BAD;
+
+	if ((NULL != pTemplate) && (0 >= ulAttributeCount))
+	{
+		for (i = 0; i < ulAttributeCount; i++)
+		{
+			if (NULL == pTemplate[i].pValue)
+				return CKR_ATTRIBUTE_VALUE_INVALID;
+
+			if (0 >= pTemplate[i].ulValueLen)
+				return CKR_ATTRIBUTE_VALUE_INVALID;
+		}
+	}
+
+	*phKey = PKCS11_MOCK_CK_OBJECT_HANDLE_SECRET_KEY;
+
+	return CKR_OK;
 }
 
 
