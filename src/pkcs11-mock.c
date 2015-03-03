@@ -711,15 +711,108 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetObjectSize)(CK_SESSION_HANDLE hSession, CK_OBJECT
 
 CK_DEFINE_FUNCTION(CK_RV, C_GetAttributeValue)(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	int i = 0;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if ((PKCS11_MOCK_CK_OBJECT_HANDLE_DATA != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_SECRET_KEY != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_PUBLIC_KEY != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_PRIVATE_KEY != hObject))
+		return CKR_OBJECT_HANDLE_INVALID;
+
+	if (NULL == pTemplate)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulCount)
+		return CKR_ARGUMENTS_BAD;
+
+	for (i = 0; i < ulCount; i++)
+	{
+		if (CKA_LABEL == pTemplate[i].type)
+		{
+			if (NULL != pTemplate[i].pValue)
+			{
+				if (pTemplate[i].ulValueLen < strlen(PKCS11_MOCK_CK_OBJECT_CKA_LABEL))
+					return CKR_BUFFER_TOO_SMALL;
+				else
+					memcpy(pTemplate[i].pValue, PKCS11_MOCK_CK_OBJECT_CKA_LABEL, strlen(PKCS11_MOCK_CK_OBJECT_CKA_LABEL));
+			}
+
+			pTemplate[i].ulValueLen = strlen(PKCS11_MOCK_CK_OBJECT_CKA_LABEL);
+		}
+		else if (CKA_VALUE == pTemplate[i].type)
+		{
+			if (PKCS11_MOCK_CK_OBJECT_HANDLE_PRIVATE_KEY == hObject)
+			{
+				pTemplate[i].ulValueLen = (CK_ULONG) -1;
+			}
+			else
+			{
+				if (NULL != pTemplate[i].pValue)
+				{
+					if (pTemplate[i].ulValueLen < strlen(PKCS11_MOCK_CK_OBJECT_CKA_VALUE))
+						return CKR_BUFFER_TOO_SMALL;
+					else
+						memcpy(pTemplate[i].pValue, PKCS11_MOCK_CK_OBJECT_CKA_VALUE, strlen(PKCS11_MOCK_CK_OBJECT_CKA_VALUE));
+				}
+
+				pTemplate[i].ulValueLen = strlen(PKCS11_MOCK_CK_OBJECT_CKA_VALUE);
+			}
+		}
+		else
+		{
+			return CKR_ATTRIBUTE_TYPE_INVALID;
+		}
+	}
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_SetAttributeValue)(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	int i = 0;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if ((PKCS11_MOCK_CK_OBJECT_HANDLE_DATA != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_SECRET_KEY != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_PUBLIC_KEY != hObject) &&
+		(PKCS11_MOCK_CK_OBJECT_HANDLE_PRIVATE_KEY != hObject))
+		return CKR_OBJECT_HANDLE_INVALID;
+
+	if (NULL == pTemplate)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulCount)
+		return CKR_ARGUMENTS_BAD;
+
+	for (i = 0; i < ulCount; i++)
+	{
+		if ((CKA_LABEL == pTemplate[i].type) || (CKA_VALUE == pTemplate[i].type))
+		{
+			if (NULL == pTemplate[i].pValue)
+				return CKR_ATTRIBUTE_VALUE_INVALID;
+
+			if (0 >= pTemplate[i].ulValueLen)
+				return CKR_ATTRIBUTE_VALUE_INVALID;
+		}
+		else
+		{
+			return CKR_ATTRIBUTE_TYPE_INVALID;
+		}
+	}
+
+	return CKR_OK;
 }
 
 
