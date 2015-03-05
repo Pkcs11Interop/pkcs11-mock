@@ -1395,85 +1395,401 @@ CK_DEFINE_FUNCTION(CK_RV, C_DigestFinal)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR
 
 CK_DEFINE_FUNCTION(CK_RV, C_SignInit)(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hKey)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_NONE != pkcs11_mock_active_operation)
+		return CKR_OPERATION_ACTIVE;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pMechanism)
+		return CKR_ARGUMENTS_BAD;
+
+	if ((CKM_RSA_PKCS == pMechanism->mechanism) || (CKM_SHA1_RSA_PKCS == pMechanism->mechanism))
+	{
+		if ((NULL != pMechanism->pParameter) || (0 != pMechanism->ulParameterLen))
+			return CKR_MECHANISM_PARAM_INVALID;
+
+		if (PKCS11_MOCK_CK_OBJECT_HANDLE_PRIVATE_KEY != hKey)
+			return CKR_KEY_TYPE_INCONSISTENT;
+	}
+	else
+	{
+		return CKR_MECHANISM_INVALID;
+	}
+
+	pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_SIGN;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_Sign)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pSignature, CK_ULONG_PTR pulSignatureLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	CK_BYTE signature[10] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_SIGN != pkcs11_mock_active_operation)
+		return CKR_OPERATION_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pData)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulDataLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == pulSignatureLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL != pSignature)
+	{
+		if (sizeof(signature) > *pulSignatureLen)
+		{
+			return CKR_BUFFER_TOO_SMALL;
+		}
+		else
+		{
+			memcpy(pSignature, signature, sizeof(signature));
+			pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_NONE;
+		}
+	}
+
+	*pulSignatureLen = sizeof(signature);
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_SignUpdate)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart, CK_ULONG ulPartLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_SIGN != pkcs11_mock_active_operation)
+		return CKR_OPERATION_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pPart)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulPartLen)
+		return CKR_ARGUMENTS_BAD;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_SignFinal)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pSignature, CK_ULONG_PTR pulSignatureLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	CK_BYTE signature[10] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_SIGN != pkcs11_mock_active_operation)
+		return CKR_OPERATION_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pulSignatureLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL != pSignature)
+	{
+		if (sizeof(signature) > *pulSignatureLen)
+		{
+			return CKR_BUFFER_TOO_SMALL;
+		}
+		else
+		{
+			memcpy(pSignature, signature, sizeof(signature));
+			pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_NONE;
+		}
+	}
+
+	*pulSignatureLen = sizeof(signature);
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_SignRecoverInit)(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hKey)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_NONE != pkcs11_mock_active_operation)
+		return CKR_OPERATION_ACTIVE;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pMechanism)
+		return CKR_ARGUMENTS_BAD;
+
+	if (CKM_RSA_PKCS == pMechanism->mechanism)
+	{
+		if ((NULL != pMechanism->pParameter) || (0 != pMechanism->ulParameterLen))
+			return CKR_MECHANISM_PARAM_INVALID;
+
+		if (PKCS11_MOCK_CK_OBJECT_HANDLE_PRIVATE_KEY != hKey)
+			return CKR_KEY_TYPE_INCONSISTENT;
+	}
+	else
+	{
+		return CKR_MECHANISM_INVALID;
+	}
+
+	pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_SIGNRECOVER;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_SignRecover)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pSignature, CK_ULONG_PTR pulSignatureLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	int i = 0;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_SIGNRECOVER != pkcs11_mock_active_operation)
+		return CKR_OPERATION_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pData)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulDataLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == pulSignatureLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL != pSignature)
+	{
+		if (ulDataLen > *pulSignatureLen)
+		{
+			return CKR_BUFFER_TOO_SMALL;
+		}
+		else
+		{
+			for (i = 0; i < ulDataLen; i++)
+				pSignature[i] = pData[i] ^ 0xAB;
+
+			pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_NONE;
+		}
+	}
+
+	*pulSignatureLen = ulDataLen;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_VerifyInit)(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hKey)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_NONE != pkcs11_mock_active_operation)
+		return CKR_OPERATION_ACTIVE;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pMechanism)
+		return CKR_ARGUMENTS_BAD;
+
+	if ((CKM_RSA_PKCS == pMechanism->mechanism) || (CKM_SHA1_RSA_PKCS == pMechanism->mechanism))
+	{
+		if ((NULL != pMechanism->pParameter) || (0 != pMechanism->ulParameterLen))
+			return CKR_MECHANISM_PARAM_INVALID;
+
+		if (PKCS11_MOCK_CK_OBJECT_HANDLE_PUBLIC_KEY != hKey)
+			return CKR_KEY_TYPE_INCONSISTENT;
+	}
+	else
+	{
+		return CKR_MECHANISM_INVALID;
+	}
+
+	pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_VERIFY;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_Verify)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pSignature, CK_ULONG ulSignatureLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	CK_BYTE signature[10] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_VERIFY != pkcs11_mock_active_operation)
+		return CKR_OPERATION_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pData)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulDataLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == pSignature)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulSignatureLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (sizeof(signature) != ulSignatureLen)
+		return CKR_SIGNATURE_LEN_RANGE;
+
+	if (0 != memcmp(pSignature, signature, sizeof(signature)))
+		return CKR_SIGNATURE_INVALID;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_VerifyUpdate)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart, CK_ULONG ulPartLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_VERIFY != pkcs11_mock_active_operation)
+		return CKR_OPERATION_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pPart)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulPartLen)
+		return CKR_ARGUMENTS_BAD;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_VerifyFinal)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pSignature, CK_ULONG ulSignatureLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	CK_BYTE signature[10] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_VERIFY != pkcs11_mock_active_operation)
+		return CKR_OPERATION_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pSignature)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulSignatureLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (sizeof(signature) != ulSignatureLen)
+		return CKR_SIGNATURE_LEN_RANGE;
+
+	if (0 != memcmp(pSignature, signature, sizeof(signature)))
+		return CKR_SIGNATURE_INVALID;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_VerifyRecoverInit)(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hKey)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_NONE != pkcs11_mock_active_operation)
+		return CKR_OPERATION_ACTIVE;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pMechanism)
+		return CKR_ARGUMENTS_BAD;
+
+	if (CKM_RSA_PKCS == pMechanism->mechanism)
+	{
+		if ((NULL != pMechanism->pParameter) || (0 != pMechanism->ulParameterLen))
+			return CKR_MECHANISM_PARAM_INVALID;
+
+		if (PKCS11_MOCK_CK_OBJECT_HANDLE_PUBLIC_KEY != hKey)
+			return CKR_KEY_TYPE_INCONSISTENT;
+	}
+	else
+	{
+		return CKR_MECHANISM_INVALID;
+	}
+
+	pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_VERIFYRECOVER;
+
+	return CKR_OK;
 }
 
 
 CK_DEFINE_FUNCTION(CK_RV, C_VerifyRecover)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pSignature, CK_ULONG ulSignatureLen, CK_BYTE_PTR pData, CK_ULONG_PTR pulDataLen)
 {
-	CK_RV rv = CKR_OK;
-	return rv;
+	int i = 0;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_OPERATION_VERIFYRECOVER != pkcs11_mock_active_operation)
+		return CKR_OPERATION_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	if (NULL == pSignature)
+		return CKR_ARGUMENTS_BAD;
+
+	if (0 >= ulSignatureLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == pulDataLen)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL != pData)
+	{
+		if (ulSignatureLen > *pulDataLen)
+		{
+			return CKR_BUFFER_TOO_SMALL;
+		}
+		else
+		{
+			for (i = 0; i < ulSignatureLen; i++)
+				pData[i] = pSignature[i] ^ 0xAB;
+
+			pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_NONE;
+		}
+	}
+
+	*pulDataLen = ulSignatureLen;
+
+	return CKR_OK;
 }
 
 
