@@ -868,8 +868,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_FindObjectsInit)(CK_SESSION_HANDLE hSession, CK_ATTR
 	if (NULL == pTemplate)
 		return CKR_ARGUMENTS_BAD;
 
-	if (0 > ulCount)
-		return CKR_ARGUMENTS_BAD;
+	IGNORE(ulCount);
 
 	pkcs11_mock_find_result = CK_INVALID_HANDLE;
 
@@ -1043,8 +1042,6 @@ CK_DEFINE_FUNCTION(CK_RV, C_EncryptInit)(CK_SESSION_HANDLE hSession, CK_MECHANIS
 		default:
 
 			return CKR_MECHANISM_INVALID;
-
-			break;
 	}
 
 	switch (pkcs11_mock_active_operation)
@@ -1058,6 +1055,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_EncryptInit)(CK_SESSION_HANDLE hSession, CK_MECHANIS
 		case PKCS11_MOCK_CK_OPERATION_SIGN:
 			pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_SIGN_ENCRYPT;
 			break;
+		default:
+			return CKR_FUNCTION_FAILED;
 	}
 
 	return CKR_OK;
@@ -1177,6 +1176,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_EncryptFinal)(CK_SESSION_HANDLE hSession, CK_BYTE_PT
 			case PKCS11_MOCK_CK_OPERATION_SIGN_ENCRYPT:
 				pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_SIGN;
 				break;
+			default:
+				return CKR_FUNCTION_FAILED;
 		}
 	}
 
@@ -1247,8 +1248,6 @@ CK_DEFINE_FUNCTION(CK_RV, C_DecryptInit)(CK_SESSION_HANDLE hSession, CK_MECHANIS
 		default:
 
 			return CKR_MECHANISM_INVALID;
-
-			break;
 	}
 
 	switch (pkcs11_mock_active_operation)
@@ -1262,6 +1261,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_DecryptInit)(CK_SESSION_HANDLE hSession, CK_MECHANIS
 		case PKCS11_MOCK_CK_OPERATION_VERIFY:
 			pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_DECRYPT_VERIFY;
 			break;
+		default:
+			return CKR_FUNCTION_FAILED;
 	}
 
 	return CKR_OK;
@@ -1381,6 +1382,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_DecryptFinal)(CK_SESSION_HANDLE hSession, CK_BYTE_PT
 			case PKCS11_MOCK_CK_OPERATION_DECRYPT_VERIFY:
 				pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_VERIFY;
 				break;
+			default:
+				return CKR_FUNCTION_FAILED;
 		}
 	}
 
@@ -1423,6 +1426,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_DigestInit)(CK_SESSION_HANDLE hSession, CK_MECHANISM
 		case PKCS11_MOCK_CK_OPERATION_DECRYPT:
 			pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_DECRYPT_DIGEST;
 			break;
+		default:
+			return CKR_FUNCTION_FAILED;
 	}
 
 	return CKR_OK;
@@ -1548,6 +1553,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_DigestFinal)(CK_SESSION_HANDLE hSession, CK_BYTE_PTR
 				case PKCS11_MOCK_CK_OPERATION_DECRYPT_DIGEST:
 					pkcs11_mock_active_operation = PKCS11_MOCK_CK_OPERATION_DECRYPT;
 					break;
+				default:
+					return CKR_FUNCTION_FAILED;
 			}
 		}
 	}

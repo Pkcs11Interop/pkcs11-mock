@@ -12,7 +12,7 @@ all: pkcs11-mock.o
 	$(CC) $(ARCH_FLAGS) -shared -o $(LIBNAME) \
 	-Wl,-soname,$(LIBNAME) \
 	-Wl,--version-script,pkcs11-mock.version \
-	pkcs11-mock.o \
+	pkcs11-mock.o
 	strip --strip-all $(LIBNAME)
 
 pkcs11-mock.o: $(SRC_DIR)/pkcs11-mock.c $(SRC_DIR)/*.h
