@@ -103,6 +103,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_Initialize)(CK_VOID_PTR pInitArgs)
 	if (CK_TRUE == pkcs11_mock_initialized)
 		return CKR_CRYPTOKI_ALREADY_INITIALIZED;
 
+	IGNORE(pInitArgs);
+
 	pkcs11_mock_initialized = CK_TRUE;
 
 	return CKR_OK;
@@ -113,6 +115,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_Finalize)(CK_VOID_PTR pReserved)
 {
 	if (CK_FALSE == pkcs11_mock_initialized)
 		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	IGNORE(pReserved);
 
 	pkcs11_mock_initialized = CK_FALSE;
 
@@ -131,10 +135,10 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetInfo)(CK_INFO_PTR pInfo)
 	pInfo->cryptokiVersion.major = 0x02;
 	pInfo->cryptokiVersion.minor = 0x14;
 	memset(pInfo->manufacturerID, ' ', sizeof(pInfo->manufacturerID));
-	strcpy(pInfo->manufacturerID, PKCS11_MOCK_CK_INFO_MANUFACTURER_ID);
+	strcpy((char *)pInfo->manufacturerID, PKCS11_MOCK_CK_INFO_MANUFACTURER_ID);
 	pInfo->flags = 0;
 	memset(pInfo->libraryDescription, ' ', sizeof(pInfo->libraryDescription));
-	strcpy(pInfo->libraryDescription, PKCS11_MOCK_CK_INFO_LIBRARY_DESCRIPTION);
+	strcpy((char *)pInfo->libraryDescription, PKCS11_MOCK_CK_INFO_LIBRARY_DESCRIPTION);
 	pInfo->libraryVersion.major = 0x01;
 	pInfo->libraryVersion.minor = 0x00;
 
@@ -157,6 +161,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetSlotList)(CK_BBOOL tokenPresent, CK_SLOT_ID_PTR p
 {
 	if (CK_FALSE == pkcs11_mock_initialized)
 		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	IGNORE(tokenPresent);
 
 	if (NULL == pulCount)
 		return CKR_ARGUMENTS_BAD;
@@ -190,9 +196,9 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetSlotInfo)(CK_SLOT_ID slotID, CK_SLOT_INFO_PTR pIn
 		return CKR_ARGUMENTS_BAD;
 
 	memset(pInfo->slotDescription, ' ', sizeof(pInfo->slotDescription));
-	strcpy(pInfo->slotDescription, PKCS11_MOCK_CK_SLOT_INFO_SLOT_DESCRIPTION);
+	strcpy((char *)pInfo->slotDescription, PKCS11_MOCK_CK_SLOT_INFO_SLOT_DESCRIPTION);
 	memset(pInfo->manufacturerID, ' ', sizeof(pInfo->manufacturerID));
-	strcpy(pInfo->manufacturerID, PKCS11_MOCK_CK_SLOT_INFO_MANUFACTURER_ID);
+	strcpy((char *)pInfo->manufacturerID, PKCS11_MOCK_CK_SLOT_INFO_MANUFACTURER_ID);
 	pInfo->flags = CKF_TOKEN_PRESENT;
 	pInfo->hardwareVersion.major = 0x01;
 	pInfo->hardwareVersion.minor = 0x00;
@@ -215,13 +221,13 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetTokenInfo)(CK_SLOT_ID slotID, CK_TOKEN_INFO_PTR p
 		return CKR_ARGUMENTS_BAD;
 
 	memset(pInfo->label, ' ', sizeof(pInfo->label));
-	strcpy(pInfo->label, PKCS11_MOCK_CK_TOKEN_INFO_LABEL);
+	strcpy((char *)pInfo->label, PKCS11_MOCK_CK_TOKEN_INFO_LABEL);
 	memset(pInfo->manufacturerID, ' ', sizeof(pInfo->manufacturerID));
-	strcpy(pInfo->manufacturerID, PKCS11_MOCK_CK_TOKEN_INFO_MANUFACTURER_ID);
+	strcpy((char *)pInfo->manufacturerID, PKCS11_MOCK_CK_TOKEN_INFO_MANUFACTURER_ID);
 	memset(pInfo->model, ' ', sizeof(pInfo->model));
-	strcpy(pInfo->model, PKCS11_MOCK_CK_TOKEN_INFO_MODEL);
+	strcpy((char *)pInfo->model, PKCS11_MOCK_CK_TOKEN_INFO_MODEL);
 	memset(pInfo->serialNumber, ' ', sizeof(pInfo->serialNumber));
-	strcpy(pInfo->serialNumber, PKCS11_MOCK_CK_TOKEN_INFO_SERIAL_NUMBER);
+	strcpy((char *)pInfo->serialNumber, PKCS11_MOCK_CK_TOKEN_INFO_SERIAL_NUMBER);
 	pInfo->flags = CKF_RNG | CKF_LOGIN_REQUIRED | CKF_USER_PIN_INITIALIZED | CKF_TOKEN_INITIALIZED;
 	pInfo->ulMaxSessionCount = CK_EFFECTIVELY_INFINITE;
 	pInfo->ulSessionCount = (CK_TRUE == pkcs11_mock_session_opened) ? 1 : 0;
@@ -441,6 +447,10 @@ CK_DEFINE_FUNCTION(CK_RV, C_OpenSession)(CK_SLOT_ID slotID, CK_FLAGS flags, CK_V
 	if (!(flags & CKF_SERIAL_SESSION))
 		return CKR_SESSION_PARALLEL_NOT_SUPPORTED;
 
+	IGNORE(pApplication);
+
+	IGNORE(Notify);
+
 	if (NULL == phSession)
 		return CKR_ARGUMENTS_BAD;
 
@@ -547,6 +557,10 @@ CK_DEFINE_FUNCTION(CK_RV, C_SetOperationState)(CK_SESSION_HANDLE hSession, CK_BY
 
 	if (256 != ulOperationStateLen)
 		return CKR_ARGUMENTS_BAD;
+
+	IGNORE(hEncryptionKey);
+
+	IGNORE(hAuthenticationKey);
 
 	return CKR_OK;
 }
@@ -872,7 +886,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_FindObjectsInit)(CK_SESSION_HANDLE hSession, CK_ATTR
 			if (sizeof(CK_ULONG) != pTemplate[i].ulValueLen)
 				return CKR_ATTRIBUTE_VALUE_INVALID;
 
-			cka_class_value = pTemplate[i].pValue;
+			cka_class_value = (CK_ULONG_PTR) pTemplate[i].pValue;
 
 			switch (*cka_class_value)
 			{

@@ -69,6 +69,8 @@
 #endif // #ifdef _WIN32
 
 
+#define IGNORE(P) (P)
+
 #define PKCS11_MOCK_CK_INFO_MANUFACTURER_ID "Pkcs11Interop Project"
 #define PKCS11_MOCK_CK_INFO_LIBRARY_DESCRIPTION "Mock module"
 
@@ -92,7 +94,6 @@
 #define PKCS11_MOCK_CK_OBJECT_HANDLE_SECRET_KEY 2
 #define PKCS11_MOCK_CK_OBJECT_HANDLE_PUBLIC_KEY 3
 #define PKCS11_MOCK_CK_OBJECT_HANDLE_PRIVATE_KEY 4
-
 
 typedef enum
 {
