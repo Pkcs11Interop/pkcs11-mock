@@ -11,7 +11,7 @@ LIBNAME=pkcs11-mock-x86.dylib
 all: pkcs11-mock.o
 	$(CC) $(ARCH_FLAGS) -dynamiclib -o $(LIBNAME) \
 	-Wl,-exported_symbols_list,pkcs11-mock.symbols \
-	pkcs11-mock.o \
+	pkcs11-mock.o
 	strip -x $(LIBNAME)
 
 pkcs11-mock.o: $(SRC_DIR)/pkcs11-mock.c $(SRC_DIR)/*.h
