@@ -2467,3 +2467,84 @@ CK_DEFINE_FUNCTION(CK_RV, C_WaitForSlotEvent)(CK_FLAGS flags, CK_SLOT_ID_PTR pSl
 
 	return CKR_NO_EVENT;
 }
+
+
+CK_DEFINE_FUNCTION(CK_RV, C_GetUnmanagedStructSizeList)(CK_ULONG_PTR pSizeList, CK_ULONG_PTR pulCount)
+{
+	CK_ULONG sizes[] = {
+		sizeof(CK_ATTRIBUTE),
+		sizeof(CK_C_INITIALIZE_ARGS),
+		sizeof(CK_FUNCTION_LIST),
+		sizeof(CK_INFO),
+		sizeof(CK_MECHANISM),
+		sizeof(CK_MECHANISM_INFO),
+		sizeof(CK_SESSION_INFO),
+		sizeof(CK_SLOT_INFO),
+		sizeof(CK_TOKEN_INFO),
+		sizeof(CK_VERSION),
+		sizeof(CK_AES_CBC_ENCRYPT_DATA_PARAMS),
+		sizeof(CK_AES_CTR_PARAMS),
+		sizeof(CK_ARIA_CBC_ENCRYPT_DATA_PARAMS),
+		sizeof(CK_CAMELLIA_CBC_ENCRYPT_DATA_PARAMS),
+		sizeof(CK_CAMELLIA_CTR_PARAMS),
+		sizeof(CK_CMS_SIG_PARAMS),
+		sizeof(CK_DES_CBC_ENCRYPT_DATA_PARAMS),
+		sizeof(CK_ECDH1_DERIVE_PARAMS),
+		sizeof(CK_ECDH2_DERIVE_PARAMS),
+		sizeof(CK_ECMQV_DERIVE_PARAMS),
+		sizeof(CK_EXTRACT_PARAMS),
+		sizeof(CK_KEA_DERIVE_PARAMS),
+		sizeof(CK_KEY_DERIVATION_STRING_DATA),
+		sizeof(CK_KEY_WRAP_SET_OAEP_PARAMS),
+		sizeof(CK_KIP_PARAMS),
+		sizeof(CK_MAC_GENERAL_PARAMS),
+		sizeof(CK_OTP_PARAM),
+		sizeof(CK_OTP_PARAMS),
+		sizeof(CK_OTP_SIGNATURE_INFO),
+		sizeof(CK_PBE_PARAMS),
+		sizeof(CK_PKCS5_PBKD2_PARAMS),
+		sizeof(CK_RC2_CBC_PARAMS),
+		sizeof(CK_RC2_MAC_GENERAL_PARAMS),
+		sizeof(CK_RC2_PARAMS),
+		sizeof(CK_RC5_CBC_PARAMS),
+		sizeof(CK_RC5_MAC_GENERAL_PARAMS),
+		sizeof(CK_RC5_PARAMS),
+		sizeof(CK_RSA_PKCS_OAEP_PARAMS),
+		sizeof(CK_RSA_PKCS_PSS_PARAMS),
+		sizeof(CK_SKIPJACK_PRIVATE_WRAP_PARAMS),
+		sizeof(CK_SKIPJACK_RELAYX_PARAMS),
+		sizeof(CK_SSL3_KEY_MAT_OUT),
+		sizeof(CK_SSL3_KEY_MAT_PARAMS),
+		sizeof(CK_SSL3_MASTER_KEY_DERIVE_PARAMS),
+		sizeof(CK_SSL3_RANDOM_DATA),
+		sizeof(CK_TLS_PRF_PARAMS),
+		sizeof(CK_WTLS_KEY_MAT_OUT),
+		sizeof(CK_WTLS_KEY_MAT_PARAMS),
+		sizeof(CK_WTLS_MASTER_KEY_DERIVE_PARAMS),
+		sizeof(CK_WTLS_PRF_PARAMS),
+		sizeof(CK_WTLS_RANDOM_DATA),
+		sizeof(CK_X9_42_DH1_DERIVE_PARAMS),
+		sizeof(CK_X9_42_DH2_DERIVE_PARAMS),
+		sizeof(CK_X9_42_MQV_DERIVE_PARAMS),
+	};
+
+	CK_ULONG sizes_count = sizeof(sizes) / sizeof(CK_ULONG);
+
+	if (NULL == pulCount)
+		return CKR_ARGUMENTS_BAD;
+
+	if (NULL == pSizeList)
+	{
+		*pulCount = sizes_count;
+	}
+	else
+	{
+		if (sizes_count > *pulCount)
+			return CKR_BUFFER_TOO_SMALL;
+
+		memcpy(pSizeList, sizes, sizeof(sizes));
+		*pulCount = sizes_count;
+	}
+
+	return CKR_OK;
+}
