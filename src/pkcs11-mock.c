@@ -135,10 +135,10 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetInfo)(CK_INFO_PTR pInfo)
 	pInfo->cryptokiVersion.major = 0x02;
 	pInfo->cryptokiVersion.minor = 0x14;
 	memset(pInfo->manufacturerID, ' ', sizeof(pInfo->manufacturerID));
-	strcpy((char *)pInfo->manufacturerID, PKCS11_MOCK_CK_INFO_MANUFACTURER_ID);
+	memcpy(pInfo->manufacturerID, PKCS11_MOCK_CK_INFO_MANUFACTURER_ID, strlen(PKCS11_MOCK_CK_INFO_MANUFACTURER_ID));
 	pInfo->flags = 0;
 	memset(pInfo->libraryDescription, ' ', sizeof(pInfo->libraryDescription));
-	strcpy((char *)pInfo->libraryDescription, PKCS11_MOCK_CK_INFO_LIBRARY_DESCRIPTION);
+	memcpy(pInfo->libraryDescription, PKCS11_MOCK_CK_INFO_LIBRARY_DESCRIPTION, strlen(PKCS11_MOCK_CK_INFO_LIBRARY_DESCRIPTION));
 	pInfo->libraryVersion.major = 0x01;
 	pInfo->libraryVersion.minor = 0x00;
 
@@ -196,9 +196,9 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetSlotInfo)(CK_SLOT_ID slotID, CK_SLOT_INFO_PTR pIn
 		return CKR_ARGUMENTS_BAD;
 
 	memset(pInfo->slotDescription, ' ', sizeof(pInfo->slotDescription));
-	strcpy((char *)pInfo->slotDescription, PKCS11_MOCK_CK_SLOT_INFO_SLOT_DESCRIPTION);
+	memcpy(pInfo->slotDescription, PKCS11_MOCK_CK_SLOT_INFO_SLOT_DESCRIPTION, strlen(PKCS11_MOCK_CK_SLOT_INFO_SLOT_DESCRIPTION));
 	memset(pInfo->manufacturerID, ' ', sizeof(pInfo->manufacturerID));
-	strcpy((char *)pInfo->manufacturerID, PKCS11_MOCK_CK_SLOT_INFO_MANUFACTURER_ID);
+	memcpy(pInfo->manufacturerID, PKCS11_MOCK_CK_SLOT_INFO_MANUFACTURER_ID, strlen(PKCS11_MOCK_CK_SLOT_INFO_MANUFACTURER_ID));
 	pInfo->flags = CKF_TOKEN_PRESENT;
 	pInfo->hardwareVersion.major = 0x01;
 	pInfo->hardwareVersion.minor = 0x00;
@@ -221,13 +221,13 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetTokenInfo)(CK_SLOT_ID slotID, CK_TOKEN_INFO_PTR p
 		return CKR_ARGUMENTS_BAD;
 
 	memset(pInfo->label, ' ', sizeof(pInfo->label));
-	strcpy((char *)pInfo->label, PKCS11_MOCK_CK_TOKEN_INFO_LABEL);
+	memcpy(pInfo->label, PKCS11_MOCK_CK_TOKEN_INFO_LABEL, strlen(PKCS11_MOCK_CK_TOKEN_INFO_LABEL));
 	memset(pInfo->manufacturerID, ' ', sizeof(pInfo->manufacturerID));
-	strcpy((char *)pInfo->manufacturerID, PKCS11_MOCK_CK_TOKEN_INFO_MANUFACTURER_ID);
+	memcpy(pInfo->manufacturerID, PKCS11_MOCK_CK_TOKEN_INFO_MANUFACTURER_ID, strlen(PKCS11_MOCK_CK_TOKEN_INFO_MANUFACTURER_ID));
 	memset(pInfo->model, ' ', sizeof(pInfo->model));
-	strcpy((char *)pInfo->model, PKCS11_MOCK_CK_TOKEN_INFO_MODEL);
+	memcpy(pInfo->model, PKCS11_MOCK_CK_TOKEN_INFO_MODEL, strlen(PKCS11_MOCK_CK_TOKEN_INFO_MODEL));
 	memset(pInfo->serialNumber, ' ', sizeof(pInfo->serialNumber));
-	strcpy((char *)pInfo->serialNumber, PKCS11_MOCK_CK_TOKEN_INFO_SERIAL_NUMBER);
+	memcpy(pInfo->serialNumber, PKCS11_MOCK_CK_TOKEN_INFO_SERIAL_NUMBER, strlen(PKCS11_MOCK_CK_TOKEN_INFO_SERIAL_NUMBER));
 	pInfo->flags = CKF_RNG | CKF_LOGIN_REQUIRED | CKF_USER_PIN_INITIALIZED | CKF_TOKEN_INITIALIZED;
 	pInfo->ulMaxSessionCount = CK_EFFECTIVELY_INFINITE;
 	pInfo->ulSessionCount = (CK_TRUE == pkcs11_mock_session_opened) ? 1 : 0;
