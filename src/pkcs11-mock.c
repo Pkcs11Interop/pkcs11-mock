@@ -2548,3 +2548,57 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetUnmanagedStructSizeList)(CK_ULONG_PTR pSizeList, 
 
 	return CKR_OK;
 }
+
+
+CK_DEFINE_FUNCTION(CK_RV, C_EjectToken)(CK_SLOT_ID slotID)
+{
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if (PKCS11_MOCK_CK_SLOT_ID != slotID)
+		return CKR_SLOT_ID_INVALID;
+
+	return CKR_OK;
+}
+
+
+CK_DEFINE_FUNCTION(CK_RV, C_InteractiveLogin)(CK_SESSION_HANDLE hSession)
+{
+	CK_RV rv = CKR_OK;
+
+	if (CK_FALSE == pkcs11_mock_initialized)
+		return CKR_CRYPTOKI_NOT_INITIALIZED;
+
+	if ((CK_FALSE == pkcs11_mock_session_opened) || (PKCS11_MOCK_CK_SESSION_ID != hSession))
+		return CKR_SESSION_HANDLE_INVALID;
+
+	switch (pkcs11_mock_session_state)
+	{
+		case CKS_RO_PUBLIC_SESSION:
+
+			pkcs11_mock_session_state = CKS_RO_USER_FUNCTIONS;
+
+			break;
+
+		case CKS_RO_USER_FUNCTIONS:
+		case CKS_RW_USER_FUNCTIONS:
+
+			rv = CKR_USER_ALREADY_LOGGED_IN;
+
+			break;
+
+		case CKS_RW_PUBLIC_SESSION:
+
+			pkcs11_mock_session_state = CKS_RW_USER_FUNCTIONS;
+
+			break;
+
+		case CKS_RW_SO_FUNCTIONS:
+
+			rv = CKR_USER_ANOTHER_ALREADY_LOGGED_IN;
+
+			break;
+	}
+
+	return rv;
+}
