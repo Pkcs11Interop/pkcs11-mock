@@ -1,7 +1,7 @@
 @setlocal
 
-@rem Initialize build environment of Visual Studio 2012
-call "C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\Tools\vsvars32.bat"
+@rem Initialize build environment of Visual Studio 2015
+call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\vsvars32.bat"
 
 @rem Build for x86 platform
 msbuild pkcs11-mock.sln /p:Configuration=Release /p:Platform=Win32 /target:Clean || goto :error
