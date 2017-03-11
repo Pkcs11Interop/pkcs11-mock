@@ -145,8 +145,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetInfo)(CK_INFO_PTR pInfo)
 	pInfo->flags = 0;
 	memset(pInfo->libraryDescription, ' ', sizeof(pInfo->libraryDescription));
 	memcpy(pInfo->libraryDescription, PKCS11_MOCK_CK_INFO_LIBRARY_DESCRIPTION, strlen(PKCS11_MOCK_CK_INFO_LIBRARY_DESCRIPTION));
-	pInfo->libraryVersion.major = 0x01;
-	pInfo->libraryVersion.minor = 0x00;
+	pInfo->libraryVersion.major = PKCS11_MOCK_CK_INFO_LIBRARY_VERSION_MAJOR;
+	pInfo->libraryVersion.minor = PKCS11_MOCK_CK_INFO_LIBRARY_VERSION_MINOR;
 
 	return CKR_OK;
 }
