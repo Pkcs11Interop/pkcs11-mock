@@ -70,8 +70,10 @@ The script should use Clang to build Mach-O universal binary (`pkcs11-mock.dylib
 
 Execute the build script on a 64-bit Windows machine with [Android NDK r26d](https://developer.android.com/ndk/) (or newer) unpacked in `C:\android-ndk` folder:
 
-	cd build/android/
-	build.bat
+```
+cd build/android/
+build.bat
+```
 	
 The script should use Android NDK to build the library for all supported architectures. Results will be located in `libs` directory and its subdirectories.
 
@@ -79,8 +81,10 @@ The script should use Android NDK to build the library for all supported archite
 
 Execute the build script on a 64-bit macOS machine with [Xcode](https://developer.apple.com/xcode/) and its "Command Line Tools" extension installed:
 
-	cd build/ios/
-	sh build.sh
+```
+cd build/ios/
+sh build.sh
+```
 
 The script should use Xcode to build the library with iphonesimulator SDK (`libpkcs11-mock-iphonesimulator.a`) and iphoneos SDK (`libpkcs11-mock-iphoneos.a`).
 
