@@ -15,4 +15,4 @@ rm Makefile.x86_64
 make clean
 
 lipo -create -output pkcs11-mock.dylib pkcs11-mock-arm64.dylib pkcs11-mock-x86_64.dylib
-
+rm pkcs11-mock-arm64.dylib pkcs11-mock-x86_64.dylib
