@@ -10,3 +10,6 @@ Debug/
 Release/
 ipch/
 .vs/
+/build/ios/build
+/build/ios/*.a
+/build/osx/*.dylib
