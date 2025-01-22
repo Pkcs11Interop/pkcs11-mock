@@ -24,6 +24,10 @@
 #include <string.h>
 
 
+// Removes unused parameter warning
+#define UNUSED(x) (void)(x)
+
+
 #ifdef _WIN32
 
 
