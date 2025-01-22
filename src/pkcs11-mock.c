@@ -804,7 +804,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_CopyObject)(CK_SESSION_HANDLE hSession, CK_OBJECT_HA
 	if (NULL == phNewObject)
 		return CKR_ARGUMENTS_BAD;
 
-	if ((NULL != pTemplate) && (0 >= ulCount))
+	if ((NULL != pTemplate) && (0 < ulCount))
 	{
 		for (i = 0; i < ulCount; i++)
 		{
@@ -2490,7 +2490,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_DeriveKey)(CK_SESSION_HANDLE hSession, CK_MECHANISM_
 	if (NULL == phKey)
 		return CKR_ARGUMENTS_BAD;
 
-	if ((NULL != pTemplate) && (0 >= ulAttributeCount))
+	if ((NULL != pTemplate) && (0 < ulAttributeCount))
 	{
 		for (i = 0; i < ulAttributeCount; i++)
 		{
