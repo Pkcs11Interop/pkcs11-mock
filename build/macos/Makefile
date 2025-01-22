@@ -3,8 +3,8 @@
 
 SRC_DIR=../../src
 
-CC= gcc
-ARCH_FLAGS= -m32
+CC= clang
+ARCH_FLAGS= -target arm64-apple-macos11
 CFLAGS= $(ARCH_FLAGS) -Wall -Wextra -Werror -O2 -I$(SRC_DIR)
 LIBNAME=pkcs11-mock-x86.dylib
 

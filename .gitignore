@@ -9,3 +9,10 @@ TestResults/
 Debug/
 Release/
 ipch/
+.vs/
+/build/android/libs
+/build/ios/build
+/build/ios/*.a
+/build/linux/*.so
+/build/macos/*.dylib
+/build/windows/*.dll
