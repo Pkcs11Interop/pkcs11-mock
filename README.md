@@ -2,6 +2,12 @@ PKCS11-MOCK
 ===========
 **PKCS#11 mock module**
 
+[![Windows](https://github.com/Pkcs11Interop/pkcs11-mock/actions/workflows/windows.yml/badge.svg?branch=master)](https://github.com/Pkcs11Interop/pkcs11-mock/actions/workflows/windows.yml)
+[![Linux](https://github.com/Pkcs11Interop/pkcs11-mock/actions/workflows/linux.yml/badge.svg?branch=master)](https://github.com/Pkcs11Interop/pkcs11-mock/actions/workflows/linux.yml)
+[![macOS](https://github.com/Pkcs11Interop/pkcs11-mock/actions/workflows/macos.yml/badge.svg?branch=master)](https://github.com/Pkcs11Interop/pkcs11-mock/actions/workflows/macos.yml)
+[![Android](https://github.com/Pkcs11Interop/pkcs11-mock/actions/workflows/android.yml/badge.svg?branch=master)](https://github.com/Pkcs11Interop/pkcs11-mock/actions/workflows/android.yml)
+[![iOS](https://github.com/Pkcs11Interop/pkcs11-mock/actions/workflows/ios.yml/badge.svg?branch=master)](https://github.com/Pkcs11Interop/pkcs11-mock/actions/workflows/ios.yml)
+
 ## Table of Contents
 
 * [Overview](#overview)
@@ -35,7 +41,7 @@ Windows libraries are signed with [code-signing certificate of Jaroslav Imrich](
 
 ### Windows
 
-Execute the build script on a 64-bit Windows machine with [Visual Studio 2022 Community](https://visualstudio.microsoft.com/vs/community/) (or newer) installed:
+Execute the build script on a 64-bit Windows machine with [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) (or newer) installed:
 
 ```
 cd build/windows/
@@ -68,7 +74,7 @@ The script should use Clang to build Mach-O universal binary (`pkcs11-mock.dylib
 
 ### Android
 
-Execute the build script on a 64-bit Windows machine with [Android NDK r26d](https://developer.android.com/ndk/) (or newer) unpacked in `C:\android-ndk` folder:
+Execute the build script on a 64-bit Windows machine with [Android NDK r26d](https://developer.android.com/ndk/) (or newer) unpacked in `C:\android-ndk` or in a folder defined by `ANDROID_NDK` environment variable:
 
 ```
 cd build/android/
