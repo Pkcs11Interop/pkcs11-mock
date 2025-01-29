@@ -1,2 +1,8 @@
+PKCS11-MOCK 2.0.0 (2025-01-29)
+ - #2 - Fixes condition in C_DeriveKey and C_CopyObject
+ - #3 - Fixes condition in C_GetTokenInfo
+ - #5 - Targets current platforms
+ - #5 - Adds minimal PKCS#11 v3.1 support
+
 PKCS11-MOCK 1.0.0 (2017-03-11)
  - Initial stable release
